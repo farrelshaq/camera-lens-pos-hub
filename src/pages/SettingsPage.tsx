@@ -5,6 +5,8 @@ import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { SubscriptionCard } from "@/components/subscription/SubscriptionCard";
+import { UserManagementModal } from "@/components/settings/UserManagementModal";
 import { 
   User, 
   Store, 
@@ -13,7 +15,12 @@ import {
   CreditCard, 
   Printer,
   Save,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Moon,
+  Sun,
+  Users,
+  Database,
+  Zap
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,8 +34,11 @@ const SettingsPage = () => {
     printReceipts: true,
     lowStockAlert: true,
     currency: "IDR",
+    darkMode: false,
   });
 
+  const [showSubscription, setShowSubscription] = useState(false);
+  const [showUserManagement, setShowUserManagement] = useState(false);
   const { toast } = useToast();
 
   const handleSaveSettings = () => {
@@ -62,9 +72,33 @@ const SettingsPage = () => {
       items: [
         { label: "Auto Backup", key: "autoBackup", type: "switch" },
         { label: "Print Receipts", key: "printReceipts", type: "switch" },
+        { label: "Dark Mode", key: "darkMode", type: "switch" },
       ]
     }
   ];
+
+  if (showSubscription) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex w-full">
+        <Sidebar />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <main className="flex-1 p-6">
+            <div className="flex items-center mb-6">
+              <Button variant="outline" onClick={() => setShowSubscription(false)} className="mr-4">
+                ← Back to Settings
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">Subscription Plans</h1>
+                <p className="text-gray-600">Choose the perfect plan for your business</p>
+              </div>
+            </div>
+            <SubscriptionCard />
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
@@ -100,7 +134,12 @@ const SettingsPage = () => {
                     <div className="space-y-4">
                       {section.items.map((item, itemIndex) => (
                         <div key={itemIndex} className="flex items-center justify-between">
-                          <label className="text-sm font-medium text-gray-700">
+                          <label className="text-sm font-medium text-gray-700 flex items-center">
+                            {item.key === "darkMode" && (
+                              <div className="mr-2">
+                                {settings.darkMode ? <Moon size={16} /> : <Sun size={16} />}
+                              </div>
+                            )}
                             {item.label}
                           </label>
                           {item.type === "input" ? (
@@ -140,15 +179,19 @@ const SettingsPage = () => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-600">Plan</p>
-                    <p className="font-medium">Pro Plan</p>
+                    <p className="font-medium">Free Plan</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Valid Until</p>
-                    <p className="font-medium">March 15, 2024</p>
+                    <p className="font-medium">Unlimited</p>
                   </div>
-                  <Button variant="outline" className="w-full mt-4 hover:scale-105 transition-transform">
-                    <CreditCard size={16} className="mr-2" />
-                    Manage Subscription
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-4 hover:scale-105 transition-transform"
+                    onClick={() => setShowSubscription(true)}
+                  >
+                    <Zap size={16} className="mr-2" />
+                    Upgrade Plan
                   </Button>
                 </div>
               </div>
@@ -157,16 +200,28 @@ const SettingsPage = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start hover:scale-105 transition-transform">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start hover:scale-105 transition-transform"
+                    onClick={() => toast({ title: "Backup Started", description: "Your data is being backed up..." })}
+                  >
                     <Shield size={16} className="mr-2" />
                     Backup Data
                   </Button>
-                  <Button variant="outline" className="w-full justify-start hover:scale-105 transition-transform">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start hover:scale-105 transition-transform"
+                    onClick={() => toast({ title: "Printer Test", description: "Test print sent to printer" })}
+                  >
                     <Printer size={16} className="mr-2" />
                     Test Printer
                   </Button>
-                  <Button variant="outline" className="w-full justify-start hover:scale-105 transition-transform">
-                    <User size={16} className="mr-2" />
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start hover:scale-105 transition-transform"
+                    onClick={() => setShowUserManagement(true)}
+                  >
+                    <Users size={16} className="mr-2" />
                     Manage Users
                   </Button>
                 </div>
@@ -200,6 +255,11 @@ const SettingsPage = () => {
           </div>
         </main>
       </div>
+
+      <UserManagementModal
+        isOpen={showUserManagement}
+        onClose={() => setShowUserManagement(false)}
+      />
     </div>
   );
 };

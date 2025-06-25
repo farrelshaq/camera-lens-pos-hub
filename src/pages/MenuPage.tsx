@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { ProductCategories } from "@/components/products/ProductCategories";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { FilterModal } from "@/components/products/FilterModal";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Filter, Grid, List } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,8 @@ const MenuPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState(null);
   const { toast } = useToast();
 
   const handleAddProduct = () => {
@@ -45,6 +48,14 @@ const MenuPage = () => {
     });
   };
 
+  const handleApplyFilters = (filters: any) => {
+    setAppliedFilters(filters);
+    toast({
+      title: "Filters Applied",
+      description: "Product filters have been updated.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
       <Sidebar />
@@ -74,7 +85,11 @@ const MenuPage = () => {
                   className="pl-10"
                 />
               </div>
-              <Button variant="outline" className="hover:scale-105 transition-transform">
+              <Button 
+                variant="outline" 
+                className="hover:scale-105 transition-transform"
+                onClick={() => setIsFilterModalOpen(true)}
+              >
                 <Filter size={20} className="mr-2" />
                 Filter
               </Button>
@@ -111,11 +126,18 @@ const MenuPage = () => {
                 searchQuery={searchQuery}
                 viewMode={viewMode}
                 onUpdateStock={handleStockUpdate}
+                appliedFilters={appliedFilters}
               />
             </div>
           </div>
         </main>
       </div>
+
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={handleApplyFilters}
+      />
     </div>
   );
 };

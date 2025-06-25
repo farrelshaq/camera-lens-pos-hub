@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -18,9 +17,12 @@ import {
   Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { EditStockModal } from "@/components/stock/EditStockModal";
 
 const StockPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
 
   const [stockData, setStockData] = useState([
@@ -120,9 +122,17 @@ const StockPage = () => {
   };
 
   const handleEditStock = (item: any) => {
+    setEditingItem(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = (updatedItem: any) => {
+    setStockData(prev => prev.map(item => 
+      item.id === updatedItem.id ? updatedItem : item
+    ));
     toast({
-      title: "Edit Stock",
-      description: `Edit form for ${item.name} will be available soon!`,
+      title: "Product Updated",
+      description: `${updatedItem.name} has been updated successfully.`,
     });
   };
 
@@ -314,6 +324,13 @@ const StockPage = () => {
           </div>
         </main>
       </div>
+
+      <EditStockModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        item={editingItem}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };

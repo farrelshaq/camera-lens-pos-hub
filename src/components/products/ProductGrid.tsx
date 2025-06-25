@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ProductDetailModal } from "./ProductDetailModal";
 import { ShoppingCart, Eye, Heart, Plus, Minus } from "lucide-react";
 
 const mockProducts = [
@@ -181,6 +181,7 @@ interface ProductGridProps {
   searchQuery?: string;
   viewMode?: "grid" | "list";
   onUpdateStock?: (productId: number, newStock: number) => void;
+  appliedFilters?: any;
 }
 
 export const ProductGrid = ({ 
@@ -188,13 +189,30 @@ export const ProductGrid = ({
   onAddToOrder, 
   searchQuery = "", 
   viewMode = "grid",
-  onUpdateStock
+  onUpdateStock,
+  appliedFilters = null
 }: ProductGridProps) => {
   const [products, setProducts] = useState(mockProducts);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Apply additional filters if provided
+    if (appliedFilters) {
+      const matchesCondition = appliedFilters.condition.length === 0 || 
+        appliedFilters.condition.includes(product.condition === "new" ? "New" : "Used");
+      
+      const matchesPrice = product.price >= appliedFilters.priceRange[0] && 
+        product.price <= appliedFilters.priceRange[1];
+      
+      const matchesStock = !appliedFilters.inStock || product.stock > 0;
+      
+      return matchesCategory && matchesSearch && matchesCondition && matchesPrice && matchesStock;
+    }
+    
     return matchesCategory && matchesSearch;
   });
 
@@ -207,6 +225,11 @@ export const ProductGrid = ({
       }
       return product;
     }));
+  };
+
+  const handleViewProduct = (product: any) => {
+    setSelectedProduct(product);
+    setIsDetailModalOpen(true);
   };
 
   if (viewMode === "list") {
@@ -293,93 +316,107 @@ export const ProductGrid = ({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {filteredProducts.map((product) => (
-        <div key={product.id} className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-105">
-          <div className="relative">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-48 object-cover"
-            />
-            {product.discount && (
-              <div className="absolute top-2 left-2">
-                <Badge className="bg-red-500 hover:bg-red-600 text-white">
-                  {product.discount}% OFF
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {filteredProducts.map((product) => (
+          <div key={product.id} className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-105">
+            <div className="relative">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-48 object-cover"
+              />
+              {product.discount && (
+                <div className="absolute top-2 left-2">
+                  <Badge className="bg-red-500 hover:bg-red-600 text-white">
+                    {product.discount}% OFF
+                  </Badge>
+                </div>
+              )}
+              <div className="absolute top-2 right-2">
+                <Badge variant={product.condition === "new" ? "default" : "secondary"}>
+                  {product.condition === "new" ? "New" : "Used"}
                 </Badge>
               </div>
-            )}
-            <div className="absolute top-2 right-2">
-              <Badge variant={product.condition === "new" ? "default" : "secondary"}>
-                {product.condition === "new" ? "New" : "Used"}
-              </Badge>
-            </div>
-            {product.stock === 0 && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <Badge variant="destructive" className="text-white">Out of Stock</Badge>
-              </div>
-            )}
-          </div>
-          
-          <div className="p-4">
-            <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-            
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-1">
-                <span className="text-sm text-gray-600">Stock:</span>
-                <div className="flex items-center space-x-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateStock(product.id, -1)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <Minus size={12} />
-                  </Button>
-                  <span className="text-sm font-medium w-6 text-center">{product.stock}</span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => updateStock(product.id, 1)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <Plus size={12} />
-                  </Button>
+              {product.stock === 0 && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <Badge variant="destructive" className="text-white">Out of Stock</Badge>
                 </div>
-              </div>
-              <span className="text-sm text-yellow-600">★ {product.rating}</span>
-            </div>
-            
-            <div className="mb-3">
-              <div className="flex items-center space-x-2">
-                <span className="text-lg font-bold text-emerald-600">
-                  Rp {product.price.toLocaleString('id-ID')}
-                </span>
-              </div>
-              {product.originalPrice && (
-                <span className="text-sm text-gray-500 line-through">
-                  Rp {product.originalPrice.toLocaleString('id-ID')}
-                </span>
               )}
             </div>
             
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" className="flex-1 hover:scale-105 transition-transform">
-                <Eye size={16} />
-              </Button>
-              <Button 
-                onClick={() => onAddToOrder(product)}
-                size="sm"
-                className="flex-1 bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all"
-                disabled={product.stock === 0}
-              >
-                <ShoppingCart size={16} className="mr-1" />
-                {product.stock === 0 ? "Habis" : "Add"}
-              </Button>
+            <div className="p-4">
+              <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+              
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-1">
+                  <span className="text-sm text-gray-600">Stock:</span>
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateStock(product.id, -1)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Minus size={12} />
+                    </Button>
+                    <span className="text-sm font-medium w-6 text-center">{product.stock}</span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateStock(product.id, 1)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Plus size={12} />
+                    </Button>
+                  </div>
+                </div>
+                <span className="text-sm text-yellow-600">★ {product.rating}</span>
+              </div>
+              
+              <div className="mb-3">
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg font-bold text-emerald-600">
+                    Rp {product.price.toLocaleString('id-ID')}
+                  </span>
+                </div>
+                {product.originalPrice && (
+                  <span className="text-sm text-gray-500 line-through">
+                    Rp {product.originalPrice.toLocaleString('id-ID')}
+                  </span>
+                )}
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 hover:scale-105 transition-transform"
+                  onClick={() => handleViewProduct(product)}
+                >
+                  <Eye size={16} />
+                </Button>
+                <Button 
+                  onClick={() => onAddToOrder(product)}
+                  size="sm"
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all"
+                  disabled={product.stock === 0}
+                >
+                  <ShoppingCart size={16} className="mr-1" />
+                  {product.stock === 0 ? "Habis" : "Add"}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      <ProductDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        product={selectedProduct}
+        onAddToOrder={onAddToOrder}
+      />
+    </>
   );
 };

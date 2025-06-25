@@ -5,7 +5,7 @@ const currentOrders = [
   {
     id: "ID1902",
     customer: "Michael Jordan",
-    table: "Table 12",
+    lastItem: "Canon EOS R5",
     items: 12,
     total: 290,
     progress: 100,
@@ -14,7 +14,7 @@ const currentOrders = [
   {
     id: "ID8591",
     customer: "Sujiwo Bejo",
-    table: "Table 09",
+    lastItem: "Sony FX3 Cinema Camera",
     items: 4,
     total: 180,
     progress: 79,
@@ -23,7 +23,7 @@ const currentOrders = [
   {
     id: "ID7712",
     customer: "Dere Rizkani",
-    table: "Table 10",
+    lastItem: "Canon RF 24-70mm",
     items: 6,
     total: 190,
     progress: 60,
@@ -32,7 +32,7 @@ const currentOrders = [
   {
     id: "ID8912",
     customer: "Filipus Seris",
-    table: "Table 11",
+    lastItem: "Tripod Manfrotto",
     items: 3,
     total: 50,
     progress: 40,
@@ -62,7 +62,7 @@ export const CurrentOrders = () => {
               </div>
               
               <h3 className="font-medium text-gray-800 mb-1">{order.customer}</h3>
-              <p className="text-sm text-gray-500 mb-3">{order.table}</p>
+              <p className="text-sm text-gray-500 mb-3">{order.lastItem}</p>
               
               <div className="flex justify-between items-center text-sm mb-3">
                 <span className="text-gray-600">{order.items} Items</span>

@@ -1,70 +1,55 @@
 
-import { Search, User, Bell, Settings } from "lucide-react";
+import { useState } from "react";
+import { Bell, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { NotificationPanel } from "@/components/notifications/NotificationPanel";
 
 export const Header = () => {
-  const [notifications] = useState(3);
-  const { toast } = useToast();
-
-  const handleNotificationClick = () => {
-    toast({
-      title: "Notifications",
-      description: "You have 3 new notifications to review.",
-    });
-  };
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 flex-1">
-          <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 transition-colors" size={20} />
-            <Input
-              placeholder="Search products, customers, orders..."
-              className="pl-10 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
-            />
+    <>
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Input
+                placeholder="Search menu, customers, orders..."
+                className="pl-10 bg-gray-50 border-gray-200"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <div className="relative">
+          <div className="flex items-center space-x-4">
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={handleNotificationClick}
-              className="hover:scale-110 transition-transform"
+              className="relative hover:scale-105 transition-transform"
+              onClick={() => setIsNotificationOpen(true)}
             >
-              <Bell size={20} className="text-gray-600" />
-              {notifications > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center p-0">
-                  {notifications}
-                </Badge>
-              )}
+              <Bell size={20} />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-red-500 hover:bg-red-600">
+                3
+              </Badge>
             </Button>
-          </div>
-
-          {/* Settings */}
-          <Button variant="ghost" size="sm" className="hover:scale-110 transition-transform">
-            <Settings size={20} className="text-gray-600" />
-          </Button>
-
-          {/* User Profile */}
-          <div className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors cursor-pointer">
-            <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center hover:scale-110 transition-transform">
-              <User size={16} className="text-white" />
-            </div>
+            <Button variant="ghost" size="sm" className="hover:scale-105 transition-transform">
+              <User size={20} />
+            </Button>
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-800">Sania</p>
-              <p className="text-xs text-gray-500">Cashier</p>
+              <p className="text-sm font-medium text-gray-800">Admin Store</p>
+              <p className="text-xs text-gray-500">Super Admin</p>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <NotificationPanel
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+      />
+    </>
   );
 };
