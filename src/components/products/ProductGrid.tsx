@@ -1,7 +1,8 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Eye, Heart } from "lucide-react";
+import { ShoppingCart, Eye, Heart, Plus, Minus } from "lucide-react";
 
 const mockProducts = [
   {
@@ -10,7 +11,7 @@ const mockProducts = [
     category: "camera",
     price: 65000000,
     originalPrice: 70000000,
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop",
     stock: 5,
     condition: "new",
     rating: 4.8,
@@ -18,10 +19,10 @@ const mockProducts = [
   },
   {
     id: 2,
-    name: "Sony FX3",
+    name: "Sony FX3 Cinema Camera",
     category: "camera",
     price: 85000000,
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop",
     stock: 3,
     condition: "new",
     rating: 4.9
@@ -31,7 +32,7 @@ const mockProducts = [
     name: "Canon RF 24-70mm f/2.8L",
     category: "lens",
     price: 22000000,
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop",
     stock: 8,
     condition: "new",
     rating: 4.7
@@ -42,7 +43,7 @@ const mockProducts = [
     category: "camera",
     price: 18000000,
     originalPrice: 25000000,
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop",
     stock: 2,
     condition: "used",
     rating: 4.5,
@@ -50,10 +51,10 @@ const mockProducts = [
   },
   {
     id: 5,
-    name: "Tripod Manfrotto",
+    name: "Tripod Manfrotto Professional",
     category: "accessories",
     price: 3500000,
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=300&fit=crop",
     stock: 12,
     condition: "new",
     rating: 4.6
@@ -63,11 +64,115 @@ const mockProducts = [
     name: "Sony 85mm f/1.4 GM",
     category: "lens",
     price: 21000000,
-    image: "/placeholder.svg",
+    image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=300&fit=crop",
     stock: 4,
     condition: "new",
     rating: 4.9
   },
+  {
+    id: 7,
+    name: "Nikon Z9 Mirrorless",
+    category: "camera",
+    price: 72000000,
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
+    stock: 3,
+    condition: "new",
+    rating: 4.8
+  },
+  {
+    id: 8,
+    name: "Canon 50mm f/1.2L RF",
+    category: "lens",
+    price: 32000000,
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=300&fit=crop",
+    stock: 6,
+    condition: "new",
+    rating: 4.9
+  },
+  {
+    id: 9,
+    name: "Sony A7 IV",
+    category: "camera",
+    price: 28000000,
+    image: "https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=400&h=300&fit=crop",
+    stock: 7,
+    condition: "new",
+    rating: 4.7
+  },
+  {
+    id: 10,
+    name: "Fujifilm X-T5",
+    category: "camera",
+    price: 23000000,
+    originalPrice: 25000000,
+    image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop",
+    stock: 4,
+    condition: "new",
+    rating: 4.6,
+    discount: 8
+  },
+  {
+    id: 11,
+    name: "Sigma 70-200mm f/2.8 DG DN",
+    category: "lens",
+    price: 18000000,
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop",
+    stock: 5,
+    condition: "new",
+    rating: 4.5
+  },
+  {
+    id: 12,
+    name: "Camera Bag Peak Design",
+    category: "accessories",
+    price: 2500000,
+    image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop",
+    stock: 15,
+    condition: "new",
+    rating: 4.4
+  },
+  {
+    id: 13,
+    name: "Used Nikon D850",
+    category: "camera",
+    price: 22000000,
+    originalPrice: 35000000,
+    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop",
+    stock: 1,
+    condition: "used",
+    rating: 4.3,
+    discount: 37
+  },
+  {
+    id: 14,
+    name: "Godox Flash V1",
+    category: "accessories",
+    price: 4500000,
+    image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=400&h=300&fit=crop",
+    stock: 8,
+    condition: "new",
+    rating: 4.6
+  },
+  {
+    id: 15,
+    name: "Tamron 28-75mm f/2.8 Di III RXD",
+    category: "lens",
+    price: 8500000,
+    image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=300&fit=crop",
+    stock: 9,
+    condition: "new",
+    rating: 4.4
+  },
+  {
+    id: 16,
+    name: "Memory Card SanDisk 128GB",
+    category: "accessories",
+    price: 850000,
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop",
+    stock: 25,
+    condition: "new",
+    rating: 4.7
+  }
 ];
 
 interface ProductGridProps {
@@ -75,19 +180,34 @@ interface ProductGridProps {
   onAddToOrder: (product: any) => void;
   searchQuery?: string;
   viewMode?: "grid" | "list";
+  onUpdateStock?: (productId: number, newStock: number) => void;
 }
 
 export const ProductGrid = ({ 
   selectedCategory, 
   onAddToOrder, 
   searchQuery = "", 
-  viewMode = "grid" 
+  viewMode = "grid",
+  onUpdateStock
 }: ProductGridProps) => {
-  const filteredProducts = mockProducts.filter(product => {
+  const [products, setProducts] = useState(mockProducts);
+
+  const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const updateStock = (productId: number, change: number) => {
+    setProducts(prev => prev.map(product => {
+      if (product.id === productId) {
+        const newStock = Math.max(0, product.stock + change);
+        onUpdateStock?.(productId, newStock);
+        return { ...product, stock: newStock };
+      }
+      return product;
+    }));
+  };
 
   if (viewMode === "list") {
     return (
@@ -108,7 +228,28 @@ export const ProductGrid = ({
                       <Badge variant={product.condition === "new" ? "default" : "secondary"}>
                         {product.condition === "new" ? "New" : "Used"}
                       </Badge>
-                      <span className="text-sm text-gray-600">Stock: {product.stock}</span>
+                      <div className="flex items-center space-x-1">
+                        <span className="text-sm text-gray-600">Stock:</span>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateStock(product.id, -1)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Minus size={12} />
+                          </Button>
+                          <span className="text-sm font-medium w-8 text-center">{product.stock}</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateStock(product.id, 1)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Plus size={12} />
+                          </Button>
+                        </div>
+                      </div>
                       <span className="text-sm text-yellow-600">★ {product.rating}</span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -136,9 +277,10 @@ export const ProductGrid = ({
                       onClick={() => onAddToOrder(product)}
                       size="sm"
                       className="bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all"
+                      disabled={product.stock === 0}
                     >
                       <ShoppingCart size={16} className="mr-1" />
-                      Add
+                      {product.stock === 0 ? "Out of Stock" : "Add"}
                     </Button>
                   </div>
                 </div>
@@ -172,13 +314,39 @@ export const ProductGrid = ({
                 {product.condition === "new" ? "New" : "Used"}
               </Badge>
             </div>
+            {product.stock === 0 && (
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <Badge variant="destructive" className="text-white">Out of Stock</Badge>
+              </div>
+            )}
           </div>
           
           <div className="p-4">
             <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
             
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">Stock: {product.stock}</span>
+              <div className="flex items-center space-x-1">
+                <span className="text-sm text-gray-600">Stock:</span>
+                <div className="flex items-center space-x-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => updateStock(product.id, -1)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Minus size={12} />
+                  </Button>
+                  <span className="text-sm font-medium w-6 text-center">{product.stock}</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => updateStock(product.id, 1)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Plus size={12} />
+                  </Button>
+                </div>
+              </div>
               <span className="text-sm text-yellow-600">★ {product.rating}</span>
             </div>
             
@@ -203,9 +371,10 @@ export const ProductGrid = ({
                 onClick={() => onAddToOrder(product)}
                 size="sm"
                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all"
+                disabled={product.stock === 0}
               >
                 <ShoppingCart size={16} className="mr-1" />
-                Add
+                {product.stock === 0 ? "Habis" : "Add"}
               </Button>
             </div>
           </div>

@@ -23,9 +23,25 @@ const MenuPage = () => {
   };
 
   const addToOrder = (product: any) => {
+    if (product.stock === 0) {
+      toast({
+        title: "Out of Stock",
+        description: `${product.name} is currently out of stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     toast({
       title: "Added to Order",
       description: `${product.name} has been added to your order.`,
+    });
+  };
+
+  const handleStockUpdate = (productId: number, newStock: number) => {
+    toast({
+      title: "Stock Updated",
+      description: `Product stock updated to ${newStock}`,
     });
   };
 
@@ -94,6 +110,7 @@ const MenuPage = () => {
                 onAddToOrder={addToOrder}
                 searchQuery={searchQuery}
                 viewMode={viewMode}
+                onUpdateStock={handleStockUpdate}
               />
             </div>
           </div>

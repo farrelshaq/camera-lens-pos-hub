@@ -6,17 +6,14 @@ import {
   Menu, 
   Database, 
   Settings, 
-  Clock, 
-  Users,
+  Clock,
   Package,
-  Wallet
 } from "lucide-react";
 
 const menuItems = [
   { icon: Menu, label: "Dashboard", path: "/" },
   { icon: Package, label: "Menu", path: "/menu" },
   { icon: Database, label: "Stock", path: "/stock" },
-  { icon: Users, label: "Table", path: "/table" },
   { icon: Clock, label: "History", path: "/history" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
