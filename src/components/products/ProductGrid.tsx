@@ -1,132 +1,212 @@
 
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingCart, Eye, Heart } from "lucide-react";
 
-const products = [
+const mockProducts = [
   {
     id: 1,
     name: "Canon EOS R5",
     category: "camera",
-    type: "Camera",
-    price: 2299,
+    price: 65000000,
+    originalPrice: 70000000,
     image: "/placeholder.svg",
-    badge: "Best seller",
-    status: "new"
+    stock: 5,
+    condition: "new",
+    rating: 4.8,
+    discount: 7
   },
   {
     id: 2,
-    name: "Sony FX3 Cinema",
-    category: "camera", 
-    type: "Camera",
-    price: 1299,
+    name: "Sony FX3",
+    category: "camera",
+    price: 85000000,
     image: "/placeholder.svg",
-    badge: "Best seller",
-    status: "new"
+    stock: 3,
+    condition: "new",
+    rating: 4.9
   },
   {
     id: 3,
-    name: "Canon RF 24-70mm",
+    name: "Canon RF 24-70mm f/2.8L",
     category: "lens",
-    type: "Lens",
-    price: 490,
+    price: 22000000,
     image: "/placeholder.svg",
-    badge: "Best seller",
-    status: "new"
+    stock: 8,
+    condition: "new",
+    rating: 4.7
   },
   {
     id: 4,
-    name: "Sony FE 85mm f/1.4",
-    category: "lens",
-    type: "Lens", 
-    price: 225,
+    name: "Used Canon 5D Mark IV",
+    category: "camera",
+    price: 18000000,
+    originalPrice: 25000000,
     image: "/placeholder.svg",
-    badge: "Best seller",
-    status: "new"
+    stock: 2,
+    condition: "used",
+    rating: 4.5,
+    discount: 28
   },
   {
     id: 5,
-    name: "Manfrotto Tripod",
+    name: "Tripod Manfrotto",
     category: "accessories",
-    type: "Accessories",
-    price: 189,
+    price: 3500000,
     image: "/placeholder.svg",
-    status: "new"
+    stock: 12,
+    condition: "new",
+    rating: 4.6
   },
   {
     id: 6,
-    name: "Godox Flash V1",
-    category: "flash",
-    type: "Flash",
-    price: 279,
+    name: "Sony 85mm f/1.4 GM",
+    category: "lens",
+    price: 21000000,
     image: "/placeholder.svg",
-    status: "new"
+    stock: 4,
+    condition: "new",
+    rating: 4.9
   },
-  {
-    id: 7,
-    name: "SanDisk 128GB CF",
-    category: "memory",
-    type: "Memory",
-    price: 89,
-    image: "/placeholder.svg",
-    status: "new"
-  },
-  {
-    id: 8,
-    name: "Canon 5D Mark IV (Used)",
-    category: "used",
-    type: "Camera",
-    price: 1299,
-    image: "/placeholder.svg",
-    status: "used",
-    condition: "Grade A"
-  }
 ];
 
-export const ProductGrid = ({ selectedCategory, onAddToOrder }) => {
-  const filteredProducts = selectedCategory === "all" 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
+interface ProductGridProps {
+  selectedCategory: string;
+  onAddToOrder: (product: any) => void;
+  searchQuery?: string;
+  viewMode?: "grid" | "list";
+}
+
+export const ProductGrid = ({ 
+  selectedCategory, 
+  onAddToOrder, 
+  searchQuery = "", 
+  viewMode = "grid" 
+}: ProductGridProps) => {
+  const filteredProducts = mockProducts.filter(product => {
+    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  if (viewMode === "list") {
+    return (
+      <div className="space-y-4">
+        {filteredProducts.map((product) => (
+          <div key={product.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-all duration-200">
+            <div className="flex items-center space-x-4">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-20 h-20 object-cover rounded-lg"
+              />
+              <div className="flex-1">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold text-gray-800 mb-1">{product.name}</h3>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Badge variant={product.condition === "new" ? "default" : "secondary"}>
+                        {product.condition === "new" ? "New" : "Used"}
+                      </Badge>
+                      <span className="text-sm text-gray-600">Stock: {product.stock}</span>
+                      <span className="text-sm text-yellow-600">★ {product.rating}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl font-bold text-emerald-600">
+                        Rp {product.price.toLocaleString('id-ID')}
+                      </span>
+                      {product.originalPrice && (
+                        <>
+                          <span className="text-sm text-gray-500 line-through">
+                            Rp {product.originalPrice.toLocaleString('id-ID')}
+                          </span>
+                          <Badge className="bg-red-100 text-red-800">{product.discount}% OFF</Badge>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+                      <Eye size={16} />
+                    </Button>
+                    <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+                      <Heart size={16} />
+                    </Button>
+                    <Button 
+                      onClick={() => onAddToOrder(product)}
+                      size="sm"
+                      className="bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all"
+                    >
+                      <ShoppingCart size={16} className="mr-1" />
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {filteredProducts.map((product) => (
-        <div key={product.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
+        <div key={product.id} className="bg-gray-50 rounded-lg overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-200 hover:scale-105">
           <div className="relative">
             <img
               src={product.image}
               alt={product.name}
               className="w-full h-48 object-cover"
             />
-            {product.badge && (
-              <span className="absolute top-3 left-3 bg-yellow-400 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
-                ⭐ {product.badge}
-              </span>
+            {product.discount && (
+              <div className="absolute top-2 left-2">
+                <Badge className="bg-red-500 hover:bg-red-600 text-white">
+                  {product.discount}% OFF
+                </Badge>
+              </div>
             )}
-            {product.condition && (
-              <span className="absolute top-3 right-3 bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                {product.condition}
-              </span>
-            )}
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-              <Button
-                onClick={() => onAddToOrder(product)}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full w-12 h-12 p-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 group-hover:scale-100"
-              >
-                <Plus size={20} />
-              </Button>
+            <div className="absolute top-2 right-2">
+              <Badge variant={product.condition === "new" ? "default" : "secondary"}>
+                {product.condition === "new" ? "New" : "Used"}
+              </Badge>
             </div>
           </div>
           
           <div className="p-4">
-            <p className="text-xs text-gray-500 mb-1">{product.type}</p>
             <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-gray-900">${product.price}</span>
-              {product.status === "used" && (
-                <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-                  Used
+            
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">Stock: {product.stock}</span>
+              <span className="text-sm text-yellow-600">★ {product.rating}</span>
+            </div>
+            
+            <div className="mb-3">
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-bold text-emerald-600">
+                  Rp {product.price.toLocaleString('id-ID')}
+                </span>
+              </div>
+              {product.originalPrice && (
+                <span className="text-sm text-gray-500 line-through">
+                  Rp {product.originalPrice.toLocaleString('id-ID')}
                 </span>
               )}
+            </div>
+            
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" className="flex-1 hover:scale-105 transition-transform">
+                <Eye size={16} />
+              </Button>
+              <Button 
+                onClick={() => onAddToOrder(product)}
+                size="sm"
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all"
+              >
+                <ShoppingCart size={16} className="mr-1" />
+                Add
+              </Button>
             </div>
           </div>
         </div>
