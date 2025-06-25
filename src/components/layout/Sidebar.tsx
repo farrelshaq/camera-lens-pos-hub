@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const menuItems = [
-  { icon: Menu, label: "Dashboard", path: "/" },
+  { icon: Menu, label: "POS", path: "/" },
   { icon: Package, label: "Menu", path: "/menu" },
   { icon: Database, label: "Stock", path: "/stock" },
   { icon: Clock, label: "History", path: "/history" },
@@ -32,7 +32,11 @@ export const Sidebar = () => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center transition-transform hover:scale-110">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
+            {collapsed ? (
+              <span className="text-white font-bold text-sm">C</span>
+            ) : (
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
+            )}
           </div>
           {!collapsed && <span className="font-bold text-xl text-gray-800">CamPOS</span>}
         </div>

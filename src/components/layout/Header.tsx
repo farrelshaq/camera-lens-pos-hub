@@ -8,6 +8,12 @@ import { NotificationPanel } from "@/components/notifications/NotificationPanel"
 
 export const Header = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(3);
+
+  const handleNotificationOpen = () => {
+    setIsNotificationOpen(true);
+    setNotificationCount(0); // Clear notification count when opened
+  };
 
   return (
     <>
@@ -28,12 +34,14 @@ export const Header = () => {
               variant="ghost" 
               size="sm" 
               className="relative hover:scale-105 transition-transform"
-              onClick={() => setIsNotificationOpen(true)}
+              onClick={handleNotificationOpen}
             >
               <Bell size={20} />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-red-500 hover:bg-red-600">
-                3
-              </Badge>
+              {notificationCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-red-500 hover:bg-red-600">
+                  {notificationCount}
+                </Badge>
+              )}
             </Button>
             <Button variant="ghost" size="sm" className="hover:scale-105 transition-transform">
               <User size={20} />

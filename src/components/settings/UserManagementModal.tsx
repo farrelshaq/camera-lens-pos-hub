@@ -1,11 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Edit, Trash2, Mail, Shield } from "lucide-react";
+import { X, Plus, Edit2, Save, UserPlus, Mail, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface UserManagementModalProps {
@@ -13,49 +10,41 @@ interface UserManagementModalProps {
   onClose: () => void;
 }
 
-const mockUsers = [
-  {
-    id: 1,
-    name: "John Admin",
-    email: "john@camstore.com",
-    role: "admin",
-    status: "active",
-    lastLogin: "2024-01-15"
-  },
-  {
-    id: 2,
-    name: "Sarah Cashier",
-    email: "sarah@camstore.com",
-    role: "cashier",
-    status: "active",
-    lastLogin: "2024-01-15"
-  },
-  {
-    id: 3,
-    name: "Mike Warehouse",
-    email: "mike@camstore.com",
-    role: "warehouse",
-    status: "inactive",
-    lastLogin: "2024-01-10"
-  }
-];
-
 export const UserManagementModal = ({ isOpen, onClose }: UserManagementModalProps) => {
-  const [users, setUsers] = useState(mockUsers);
-  const [isAddingUser, setIsAddingUser] = useState(false);
-  const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    role: "cashier"
-  });
+  const [users, setUsers] = useState([
+    { id: 1, name: "Admin Store", email: "admin@camerapro.com", role: "Admin", status: "Active" },
+    { id: 2, name: "John Manager", email: "john@camerapro.com", role: "Manager", status: "Active" },
+    { id: 3, name: "Sarah Cashier", email: "sarah@camerapro.com", role: "Cashier", status: "Inactive" },
+  ]);
+  
+  const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState("");
+  const [newUser, setNewUser] = useState({ name: "", email: "", role: "Cashier" });
   const { toast } = useToast();
+
+  const handleEditStart = (user) => {
+    setEditingId(user.id);
+    setEditingName(user.name);
+  };
+
+  const handleEditSave = (id) => {
+    setUsers(users.map(user =>
+      user.id === id ? { ...user, name: editingName } : user
+    ));
+    setEditingId(null);
+    setEditingName("");
+    toast({
+      title: "User Updated",
+      description: "User name has been updated successfully.",
+    });
+  };
 
   const handleAddUser = () => {
     if (!newUser.name || !newUser.email) {
       toast({
-        title: "Missing Information",
+        title: "Error",
         description: "Please fill in all required fields.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -63,149 +52,134 @@ export const UserManagementModal = ({ isOpen, onClose }: UserManagementModalProp
     const user = {
       id: users.length + 1,
       ...newUser,
-      status: "active",
-      lastLogin: "Never"
+      status: "Active"
     };
-
+    
     setUsers([...users, user]);
-    setNewUser({ name: "", email: "", role: "cashier" });
-    setIsAddingUser(false);
+    setNewUser({ name: "", email: "", role: "Cashier" });
     
     toast({
       title: "User Added",
-      description: `${newUser.name} has been added successfully.`,
+      description: `${user.name} has been added successfully.`,
     });
   };
 
-  const handleDeleteUser = (userId: number) => {
-    setUsers(users.filter(u => u.id !== userId));
-    toast({
-      title: "User Deleted",
-      description: "User has been removed successfully.",
-    });
-  };
-
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (role) => {
     switch (role) {
-      case "admin": return "bg-red-100 text-red-800";
-      case "cashier": return "bg-blue-100 text-blue-800";
-      case "warehouse": return "bg-green-100 text-green-800";
+      case "Admin": return "bg-red-100 text-red-800";
+      case "Manager": return "bg-blue-100 text-blue-800";
+      case "Cashier": return "bg-green-100 text-green-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Users className="mr-2" size={20} />
-            User Management
-          </DialogTitle>
-        </DialogHeader>
+  const getStatusColor = (status) => {
+    return status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800";
+  };
 
-        <div className="space-y-6">
-          {/* Add User Button */}
-          <div className="flex justify-between items-center">
-            <p className="text-gray-600">Manage users and their permissions</p>
-            <Button onClick={() => setIsAddingUser(true)}>
-              <Plus size={16} className="mr-2" />
-              Add User
-            </Button>
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50">
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold flex items-center">
+            <Shield className="mr-2" size={20} />
+            User Management
+          </h2>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X size={20} />
+          </Button>
+        </div>
+
+        <div className="p-4 space-y-4 max-h-full overflow-y-auto">
+          {/* Add New User */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="font-medium mb-3 flex items-center">
+              <UserPlus size={16} className="mr-2" />
+              Add New User
+            </h3>
+            <div className="space-y-3">
+              <Input
+                placeholder="Full name"
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+              />
+              <Input
+                placeholder="Email address"
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+              />
+              <select
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                value={newUser.role}
+                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+              >
+                <option value="Cashier">Cashier</option>
+                <option value="Manager">Manager</option>
+                <option value="Admin">Admin</option>
+              </select>
+              <Button onClick={handleAddUser} className="w-full">
+                <Plus size={16} className="mr-2" />
+                Add User
+              </Button>
+            </div>
           </div>
 
-          {/* Add User Form */}
-          {isAddingUser && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-medium mb-4">Add New User</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Input
-                  placeholder="Full Name"
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                />
-                <Input
-                  type="email"
-                  placeholder="Email Address"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                />
-                <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="cashier">Cashier</SelectItem>
-                    <SelectItem value="warehouse">Warehouse</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex space-x-2 mt-4">
-                <Button onClick={handleAddUser}>Add User</Button>
-                <Button variant="outline" onClick={() => setIsAddingUser(false)}>Cancel</Button>
-              </div>
-            </div>
-          )}
-
-          {/* Users Table */}
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left p-4 font-medium">User</th>
-                  <th className="text-left p-4 font-medium">Role</th>
-                  <th className="text-left p-4 font-medium">Status</th>
-                  <th className="text-left p-4 font-medium">Last Login</th>
-                  <th className="text-left p-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id} className="border-t hover:bg-gray-50">
-                    <td className="p-4">
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Mail size={12} className="mr-1" />
-                          {user.email}
+          {/* Existing Users */}
+          <div>
+            <h3 className="font-medium mb-3">Existing Users</h3>
+            <div className="space-y-3">
+              {users.map((user) => (
+                <div key={user.id} className="bg-white border rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      {editingId === user.id ? (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button size="sm" onClick={() => handleEditSave(user.id)}>
+                            <Save size={14} />
+                          </Button>
                         </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <h4 className="font-medium">{user.name}</h4>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleEditStart(user)}
+                            className="h-6 w-6 p-0"
+                          >
+                            <Edit2 size={12} />
+                          </Button>
+                        </div>
+                      )}
+                      <div className="flex items-center text-sm text-gray-600 mt-1">
+                        <Mail size={12} className="mr-1" />
+                        {user.email}
                       </div>
-                    </td>
-                    <td className="p-4">
-                      <Badge className={getRoleColor(user.role)}>
-                        <Shield size={12} className="mr-1" />
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <Badge variant={user.status === "active" ? "default" : "secondary"}>
-                        {user.status}
-                      </Badge>
-                    </td>
-                    <td className="p-4 text-sm text-gray-600">{user.lastLogin}</td>
-                    <td className="p-4">
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
-                          <Edit size={14} />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={getRoleColor(user.role)}>
+                      {user.role}
+                    </Badge>
+                    <Badge className={getStatusColor(user.status)}>
+                      {user.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };

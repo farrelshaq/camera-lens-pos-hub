@@ -3,121 +3,143 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Download, 
   Search, 
-  Calendar, 
-  TrendingUp, 
-  DollarSign, 
-  Package,
-  Users,
+  Download, 
+  Calendar as CalendarIcon,
+  Filter,
+  Eye,
   ExternalLink
 } from "lucide-react";
+import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+
+const mockTransactions = [
+  {
+    id: "TXN001",
+    date: "2024-01-15",
+    customer: "John Doe",
+    items: ["Canon EOS R5", "RF 24-70mm f/2.8L"],
+    total: 82500000,
+    payment: "Credit Card",
+    status: "completed"
+  },
+  {
+    id: "TXN002",
+    date: "2024-02-01",
+    customer: "Alice Smith",
+    items: ["Sony FX3 Cinema Camera", "FE 24-70mm f/2.8 GM"],
+    total: 67800000,
+    payment: "Cash",
+    status: "completed"
+  },
+  {
+    id: "TXN003",
+    date: "2024-02-10",
+    customer: "Bob Johnson",
+    items: ["Nikon Z 7II", "NIKKOR Z 24-70mm f/2.8 S"],
+    total: 73200000,
+    payment: "Bank Transfer",
+    status: "pending"
+  },
+  {
+    id: "TXN004",
+    date: "2024-03-01",
+    customer: "Emily White",
+    items: ["DJI Ronin-S", "Zoom H6 Recorder"],
+    total: 12400000,
+    payment: "QRIS",
+    status: "completed"
+  },
+  {
+    id: "TXN005",
+    date: "2024-03-15",
+    customer: "David Brown",
+    items: ["Godox AD200Pro", "MagMod Basic Kit"],
+    total: 4850000,
+    payment: "Credit Card",
+    status: "cancelled"
+  },
+  {
+    id: "TXN006",
+    date: "2024-04-01",
+    customer: "Sophia Green",
+    items: ["Manfrotto Befree Tripod", "Peak Design Slide Strap"],
+    total: 3200000,
+    payment: "Cash",
+    status: "completed"
+  },
+  {
+    id: "TXN007",
+    date: "2024-04-10",
+    customer: "Ryan Black",
+    items: ["SanDisk Extreme Pro 128GB", "Rode VideoMic Pro+"],
+    total: 2100000,
+    payment: "Bank Transfer",
+    status: "completed"
+  },
+  {
+    id: "TXN008",
+    date: "2024-05-01",
+    customer: "Olivia Gray",
+    items: ["Sigma 18-35mm f/1.8", "Tiffen Variable ND Filter"],
+    total: 9500000,
+    payment: "QRIS",
+    status: "pending"
+  },
+  {
+    id: "TXN009",
+    date: "2024-05-15",
+    customer: "Daniel Blue",
+    items: ["Blackmagic Pocket Cinema 6K", "SmallRig Cage"],
+    total: 38900000,
+    payment: "Credit Card",
+    status: "completed"
+  },
+  {
+    id: "TXN010",
+    date: "2024-06-01",
+    customer: "Ava Red",
+    items: ["Panasonic GH5", "Metabones Speed Booster"],
+    total: 26700000,
+    payment: "Cash",
+    status: "completed"
+  }
+];
 
 const HistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [exportUrl, setExportUrl] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [exportedLink, setExportedLink] = useState("");
   const { toast } = useToast();
 
-  const [historyData, setHistoryData] = useState([
-    { 
-      id: 1, 
-      date: "2024-01-15", 
-      customer: "Michael Jordan", 
-      items: 3, 
-      total: 25000000, 
-      type: "sale", 
-      status: "completed" 
-    },
-    { 
-      id: 2, 
-      date: "2024-01-14", 
-      customer: "Sujiwo Tejo", 
-      items: 5, 
-      total: 17500000, 
-      type: "sale", 
-      status: "completed" 
-    },
-    { 
-      id: 3, 
-      date: "2024-01-13", 
-      customer: "Butet Kertaradjasa", 
-      items: 2, 
-      total: 7000000, 
-      type: "refund", 
-      status: "completed" 
-    },
-    { 
-      id: 4, 
-      date: "2024-01-12", 
-      customer: "Agus Noor", 
-      items: 4, 
-      total: 32000000, 
-      type: "sale", 
-      status: "completed" 
-    },
-    { 
-      id: 5, 
-      date: "2024-01-11", 
-      customer: "Cak Nun", 
-      items: 1, 
-      total: 9500000, 
-      type: "sale", 
-      status: "completed" 
-    },
-  ]);
-
-  const filteredHistory = historyData.filter(item =>
-    item.customer.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalSales = historyData
-    .filter(item => item.type === "sale")
-    .reduce((sum, item) => sum + item.total, 0);
-
-  const totalRefunds = historyData
-    .filter(item => item.type === "refund")
-    .reduce((sum, item) => sum + item.total, 0);
-
-  const handleExportHistory = () => {
-    // Generate or use existing export URL
-    const newExportUrl = exportUrl || `https://camstore.com/exports/history-${Date.now()}.csv`;
-    setExportUrl(newExportUrl);
+  const handleExport = () => {
+    // Generate a sample Google Sheets link (in real implementation, this would create an actual spreadsheet)
+    const spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
+    const link = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit#gid=0`;
+    
+    setExportedLink(link);
     
     toast({
-      title: "History Exported",
-      description: (
-        <div className="space-y-2">
-          <p>History has been exported successfully!</p>
-          <div className="flex items-center space-x-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => window.open(newExportUrl, '_blank')}
-              className="text-xs"
-            >
-              <ExternalLink size={12} className="mr-1" />
-              Open Export
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(newExportUrl);
-                toast({ title: "Link Copied!", description: "Export link copied to clipboard" });
-              }}
-              className="text-xs"
-            >
-              Copy Link
-            </Button>
-          </div>
-        </div>
-      ),
-      duration: 10000,
+      title: "Export Successful",
+      description: "Transaction history has been exported to Google Sheets",
     });
   };
+
+  const filteredTransactions = mockTransactions.filter(transaction => {
+    const matchesSearch = transaction.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         transaction.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || transaction.status === statusFilter;
+    const matchesPayment = paymentFilter === "all" || transaction.payment === paymentFilter;
+    
+    return matchesSearch && matchesStatus && matchesPayment;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
@@ -125,108 +147,167 @@ const HistoryPage = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 p-6">
-          {/* Header Section */}
           <div className="mb-6">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <Calendar className="text-blue-500 mr-3" size={24} />
-                  <div>
-                    <p className="text-sm text-gray-600">Total Transactions</p>
-                    <p className="text-xl font-bold">{historyData.length}</p>
-                  </div>
-                </div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">Transaction History</h1>
+                <p className="text-gray-600">View and manage your sales history</p>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <TrendingUp className="text-green-500 mr-3" size={24} />
-                  <div>
-                    <p className="text-sm text-gray-600">Total Sales</p>
-                    <p className="text-xl font-bold">Rp {(totalSales / 1000000).toFixed(1)}M</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <DollarSign className="text-red-500 mr-3" size={24} />
-                  <div>
-                    <p className="text-sm text-gray-600">Total Refunds</p>
-                    <p className="text-xl font-bold">Rp {(totalRefunds / 1000000).toFixed(1)}M</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Search */}
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <Input
-                placeholder="Search transaction history..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Transaction History</h1>
-              <p className="text-gray-600">View and analyze your sales history</p>
-            </div>
-            <div className="flex space-x-3">
-              {exportUrl && (
+              <div className="flex space-x-2">
                 <Button 
-                  variant="outline" 
-                  onClick={() => window.open(exportUrl, '_blank')}
-                  className="hover:scale-105 transition-transform"
+                  onClick={handleExport}
+                  className="bg-emerald-500 hover:bg-emerald-600 transition-all hover:scale-105"
                 >
-                  <ExternalLink size={20} className="mr-2" />
-                  View Export
+                  <Download size={20} className="mr-2" />
+                  Export History
                 </Button>
-              )}
-              <Button onClick={handleExportHistory} className="bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all">
-                <Download size={20} className="mr-2" />
-                Export History
-              </Button>
+                {exportedLink && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.open(exportedLink, '_blank')}
+                    className="hover:scale-105 transition-transform"
+                  >
+                    <ExternalLink size={20} className="mr-2" />
+                    Open Spreadsheet
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap items-center gap-4 mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Input
+                  placeholder="Search transactions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 min-w-64"
+                />
+              </div>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Methods</SelectItem>
+                  <SelectItem value="Credit Card">Credit Card</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                  <SelectItem value="QRIS">QRIS</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="hover:scale-105 transition-transform">
+                    <CalendarIcon size={20} className="mr-2" />
+                    Date Range
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
-          {/* History Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b border-gray-200">
-                    <tr>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Customer</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Items</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Total</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredHistory.map((item) => (
-                      <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="py-4 px-4">{item.date}</td>
-                        <td className="py-4 px-4">{item.customer}</td>
-                        <td className="py-4 px-4">{item.items}</td>
-                        <td className="py-4 px-4">Rp {item.total.toLocaleString('id-ID')}</td>
-                        <td className="py-4 px-4">
-                          <Badge className={item.type === "sale" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                            {item.type}
-                          </Badge>
-                        </td>
-                        <td className="py-4 px-4">{item.status}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          {/* Transactions Table */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Transaction ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Items
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Payment Method
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredTransactions.map((transaction) => (
+                  <tr key={transaction.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-800">{transaction.id}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">{transaction.date}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-800">{transaction.customer}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <ul className="list-disc list-inside text-sm text-gray-600">
+                        {transaction.items.map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-800">
+                        {new Intl.NumberFormat('id-ID', {
+                          style: 'currency',
+                          currency: 'IDR',
+                        }).format(transaction.total)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">{transaction.payment}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Badge className={transaction.status === 'completed' ? 'bg-green-100 text-green-800' : transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}>
+                        {transaction.status}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <Button variant="ghost" size="sm">
+                        <Eye size={16} className="mr-2" />
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </main>
       </div>

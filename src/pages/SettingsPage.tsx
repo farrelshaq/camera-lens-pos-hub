@@ -7,24 +7,47 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { SubscriptionCard } from "@/components/subscription/SubscriptionCard";
 import { UserManagementModal } from "@/components/settings/UserManagementModal";
+import { useTheme } from "@/contexts/ThemeContext";
 import { 
   User, 
   Store, 
   Bell, 
   Shield, 
-  CreditCard, 
   Printer,
   Save,
   Settings as SettingsIcon,
   Moon,
   Sun,
   Users,
-  Database,
-  Zap
+  Zap,
+  CheckCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const SuccessModal = ({ isOpen, onClose, title, message }: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  title: string; 
+  message: string; 
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black bg-opacity-50" />
+      <div className="bg-white rounded-xl p-8 shadow-xl z-10 max-w-sm mx-auto text-center">
+        <div className="mb-4">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+        </div>
+        <h3 className="text-xl font-semibold mb-2">{title}</h3>
+        <p className="text-gray-600">{message}</p>
+      </div>
+    </div>
+  );
+};
+
 const SettingsPage = () => {
+  const { theme, toggleTheme } = useTheme();
   const [settings, setSettings] = useState({
     storeName: "Camera Store Pro",
     storeAddress: "Jl. Sudirman No. 123, Jakarta",
@@ -34,11 +57,12 @@ const SettingsPage = () => {
     printReceipts: true,
     lowStockAlert: true,
     currency: "IDR",
-    darkMode: false,
   });
 
   const [showSubscription, setShowSubscription] = useState(false);
   const [showUserManagement, setShowUserManagement] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState({ title: "", message: "" });
   const { toast } = useToast();
 
   const handleSaveSettings = () => {
@@ -46,6 +70,24 @@ const SettingsPage = () => {
       title: "Settings Saved",
       description: "Your settings have been updated successfully!",
     });
+  };
+
+  const handleBackupData = () => {
+    setSuccessMessage({
+      title: "Backup Successful!",
+      message: "Your data has been backed up successfully."
+    });
+    setShowSuccessModal(true);
+    setTimeout(() => setShowSuccessModal(false), 5000);
+  };
+
+  const handleTestPrinter = () => {
+    setSuccessMessage({
+      title: "Printer Test Successful!",
+      message: "Test print completed successfully."
+    });
+    setShowSuccessModal(true);
+    setTimeout(() => setShowSuccessModal(false), 5000);
   };
 
   const settingSections = [
@@ -72,7 +114,7 @@ const SettingsPage = () => {
       items: [
         { label: "Auto Backup", key: "autoBackup", type: "switch" },
         { label: "Print Receipts", key: "printReceipts", type: "switch" },
-        { label: "Dark Mode", key: "darkMode", type: "switch" },
+        { label: "Dark Mode", key: "darkMode", type: "switch", customHandler: toggleTheme, value: theme === 'dark' },
       ]
     }
   ];
@@ -106,7 +148,6 @@ const SettingsPage = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         <main className="flex-1 p-6">
-          {/* Header Section */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -121,7 +162,6 @@ const SettingsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* Settings Sections */}
             <div className="xl:col-span-2 space-y-6">
               {settingSections.map((section, index) => (
                 <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -137,7 +177,7 @@ const SettingsPage = () => {
                           <label className="text-sm font-medium text-gray-700 flex items-center">
                             {item.key === "darkMode" && (
                               <div className="mr-2">
-                                {settings.darkMode ? <Moon size={16} /> : <Sun size={16} />}
+                                {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
                               </div>
                             )}
                             {item.label}
@@ -153,11 +193,17 @@ const SettingsPage = () => {
                             />
                           ) : (
                             <Switch
-                              checked={settings[item.key as keyof typeof settings] as boolean}
-                              onCheckedChange={(checked) => setSettings({
-                                ...settings,
-                                [item.key]: checked
-                              })}
+                              checked={item.customHandler ? item.value : settings[item.key as keyof typeof settings] as boolean}
+                              onCheckedChange={(checked) => {
+                                if (item.customHandler) {
+                                  item.customHandler();
+                                } else {
+                                  setSettings({
+                                    ...settings,
+                                    [item.key]: checked
+                                  });
+                                }
+                              }}
                             />
                           )}
                         </div>
@@ -168,7 +214,6 @@ const SettingsPage = () => {
               ))}
             </div>
 
-            {/* Quick Actions & Info */}
             <div className="space-y-6">
               {/* Account Info */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -203,7 +248,7 @@ const SettingsPage = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start hover:scale-105 transition-transform"
-                    onClick={() => toast({ title: "Backup Started", description: "Your data is being backed up..." })}
+                    onClick={handleBackupData}
                   >
                     <Shield size={16} className="mr-2" />
                     Backup Data
@@ -211,7 +256,7 @@ const SettingsPage = () => {
                   <Button 
                     variant="outline" 
                     className="w-full justify-start hover:scale-105 transition-transform"
-                    onClick={() => toast({ title: "Printer Test", description: "Test print sent to printer" })}
+                    onClick={handleTestPrinter}
                   >
                     <Printer size={16} className="mr-2" />
                     Test Printer
@@ -259,6 +304,13 @@ const SettingsPage = () => {
       <UserManagementModal
         isOpen={showUserManagement}
         onClose={() => setShowUserManagement(false)}
+      />
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title={successMessage.title}
+        message={successMessage.message}
       />
     </div>
   );
