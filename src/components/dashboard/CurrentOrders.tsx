@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Clock, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const currentOrders = [
@@ -68,9 +68,9 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black bg-opacity-50" />
-      <div className="bg-white rounded-xl p-6 shadow-xl z-10 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl z-10 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Order Details - {order.id}</h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Order Details - {order.id}</h3>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X size={20} />
           </Button>
@@ -79,39 +79,39 @@ const OrderDetailModal = ({ order, isOpen, onClose }) => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-600">Customer</p>
-              <p className="font-medium">{order.customer}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Customer</p>
+              <p className="font-medium text-gray-900 dark:text-white">{order.customer}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Date</p>
-              <p className="font-medium">{order.date}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Date</p>
+              <p className="font-medium text-gray-900 dark:text-white">{order.date}</p>
             </div>
           </div>
           
           <div>
-            <p className="text-sm text-gray-600 mb-2">Items Purchased</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Items Purchased</p>
             <div className="space-y-3">
               {order.items.map((item, index) => (
-                <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <img 
                     src={item.image} 
                     alt={item.name} 
                     className="w-16 h-16 object-cover rounded-lg"
                   />
                   <div className="flex-1">
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                    <p className="text-sm font-medium">{formatCurrency(item.price)}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{item.name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Quantity: {item.quantity}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(item.price)}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="border-t pt-4">
+          <div className="border-t dark:border-gray-600 pt-4">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-semibold">Total:</span>
-              <span className="text-lg font-bold text-emerald-600">{formatCurrency(order.total)}</span>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">Total:</span>
+              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(order.total)}</span>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@ export const CurrentOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleCustomerClick = (order) => {
+  const handleOrderClick = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
   };
@@ -139,38 +139,35 @@ export const CurrentOrders = () => {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="p-4 lg:p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 lg:mb-6">Current Order</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 lg:mb-6">Current Order</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {currentOrders.map((order) => (
-              <div key={order.id} className="bg-gray-50 rounded-lg p-4 relative">
+              <button
+                key={order.id}
+                onClick={() => handleOrderClick(order)}
+                className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 relative hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors cursor-pointer text-left w-full"
+              >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-500">{order.id}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{order.id}</span>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    order.status === 'completed' ? 'bg-emerald-500' : 'bg-emerald-100'
+                    order.status === 'completed' ? 'bg-emerald-500' : 'bg-emerald-100 dark:bg-emerald-900'
                   }`}>
-                    {order.status === 'completed' ? (
-                      <div className="w-4 h-4 bg-white rounded-full"></div>
-                    ) : (
-                      <Clock size={16} className="text-emerald-600" />
-                    )}
+                    <div className={`w-4 h-4 rounded-full ${
+                      order.status === 'completed' ? 'bg-white' : 'bg-emerald-600'
+                    }`}></div>
                   </div>
                 </div>
                 
-                <button 
-                  onClick={() => handleCustomerClick(order)}
-                  className="text-left w-full hover:bg-gray-100 rounded p-1 -m-1 transition-colors"
-                >
-                  <h3 className="font-medium text-gray-800 mb-1 hover:text-emerald-600">{order.customer}</h3>
-                </button>
-                <p className="text-sm text-gray-500 mb-3">{order.lastItem}</p>
+                <h3 className="font-medium text-gray-800 dark:text-white mb-1">{order.customer}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{order.lastItem}</p>
                 
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">{order.items.length} Items</span>
-                  <span className="font-semibold text-gray-800">{formatCurrency(order.total)}</span>
+                  <span className="text-gray-600 dark:text-gray-400">{order.items.length} Items</span>
+                  <span className="font-semibold text-gray-800 dark:text-white">{formatCurrency(order.total)}</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>

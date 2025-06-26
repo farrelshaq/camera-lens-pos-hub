@@ -33,14 +33,14 @@ const SuccessModal = ({ isOpen, onClose, title, message }: {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black bg-opacity-50" />
-      <div className="bg-white rounded-xl p-8 shadow-xl z-10 max-w-sm mx-auto text-center">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-xl z-10 max-w-sm mx-auto text-center" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
         </div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-gray-600">{message}</p>
+        <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{title}</h3>
+        <p className="text-gray-600 dark:text-gray-300">{message}</p>
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ const SettingsPage = () => {
       message: "Your data has been backed up successfully."
     });
     setShowSuccessModal(true);
-    setTimeout(() => setShowSuccessModal(false), 5000);
+    setTimeout(() => setShowSuccessModal(false), 3000);
   };
 
   const handleTestPrinter = () => {
@@ -87,7 +87,7 @@ const SettingsPage = () => {
       message: "Test print completed successfully."
     });
     setShowSuccessModal(true);
-    setTimeout(() => setShowSuccessModal(false), 5000);
+    setTimeout(() => setShowSuccessModal(false), 3000);
   };
 
   const settingSections = [
@@ -121,7 +121,7 @@ const SettingsPage = () => {
 
   if (showSubscription) {
     return (
-      <div className="min-h-screen bg-gray-50 flex w-full">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex w-full">
         <Sidebar />
         <div className="flex-1 flex flex-col">
           <Header />
@@ -131,8 +131,8 @@ const SettingsPage = () => {
                 ← Back to Settings
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Subscription Plans</h1>
-                <p className="text-gray-600">Choose the perfect plan for your business</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Subscription Plans</h1>
+                <p className="text-gray-600 dark:text-gray-300">Choose the perfect plan for your business</p>
               </div>
             </div>
             <SubscriptionCard />
@@ -143,7 +143,7 @@ const SettingsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex w-full">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex w-full">
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header />
@@ -151,8 +151,8 @@ const SettingsPage = () => {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
-                <p className="text-gray-600">Manage your store preferences and configurations</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+                <p className="text-gray-600 dark:text-gray-300">Manage your store preferences and configurations</p>
               </div>
               <Button onClick={handleSaveSettings} className="bg-emerald-500 hover:bg-emerald-600 hover:scale-105 transition-all">
                 <Save size={20} className="mr-2" />
@@ -164,17 +164,17 @@ const SettingsPage = () => {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="xl:col-span-2 space-y-6">
               {settingSections.map((section, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                   <div className="p-6">
                     <div className="flex items-center mb-4">
                       <section.icon className="text-emerald-500 mr-3" size={24} />
-                      <h2 className="text-lg font-semibold text-gray-800">{section.title}</h2>
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{section.title}</h2>
                     </div>
                     
                     <div className="space-y-4">
                       {section.items.map((item, itemIndex) => (
                         <div key={itemIndex} className="flex items-center justify-between">
-                          <label className="text-sm font-medium text-gray-700 flex items-center">
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
                             {item.key === "darkMode" && (
                               <div className="mr-2">
                                 {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
@@ -216,19 +216,19 @@ const SettingsPage = () => {
 
             <div className="space-y-6">
               {/* Account Info */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <div className="flex items-center mb-4">
                   <User className="text-emerald-500 mr-3" size={24} />
-                  <h2 className="text-lg font-semibold text-gray-800">Account Info</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Account Info</h2>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-600">Plan</p>
-                    <p className="font-medium">Free Plan</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Plan</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Free Plan</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Valid Until</p>
-                    <p className="font-medium">Unlimited</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Valid Until</p>
+                    <p className="font-medium text-gray-900 dark:text-white">Unlimited</p>
                   </div>
                   <Button 
                     variant="outline" 
@@ -242,8 +242,8 @@ const SettingsPage = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
                 <div className="space-y-3">
                   <Button 
                     variant="outline" 
@@ -273,26 +273,26 @@ const SettingsPage = () => {
               </div>
 
               {/* System Status */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">System Status</h2>
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Status</h2>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Database</span>
-                    <span className="flex items-center text-green-600">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Database</span>
+                    <span className="flex items-center text-green-600 dark:text-green-400">
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                       Online
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Printer</span>
-                    <span className="flex items-center text-green-600">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Printer</span>
+                    <span className="flex items-center text-green-600 dark:text-green-400">
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                       Connected
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Last Backup</span>
-                    <span className="text-sm text-gray-600">2 hours ago</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Last Backup</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">2 hours ago</span>
                   </div>
                 </div>
               </div>

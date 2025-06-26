@@ -36,6 +36,12 @@ const DashboardPage = () => {
   }, []);
 
   const formatCurrency = (value: number) => {
+    // Format to millions/billions for better table display
+    if (value >= 1000000000) {
+      return `Rp ${(value / 1000000000).toFixed(1)}M`;
+    } else if (value >= 1000000) {
+      return `Rp ${(value / 1000000).toFixed(1)}jt`;
+    }
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
@@ -91,7 +97,7 @@ const DashboardPage = () => {
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Business Dashboard</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Business Dashboard</h1>
                 <p className="text-gray-600 dark:text-gray-300">Monitor your camera store performance</p>
               </div>
               <Select value={timePeriod} onValueChange={setTimePeriod}>
@@ -111,18 +117,18 @@ const DashboardPage = () => {
           {/* Key Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
             {stats.map((stat, index) => (
-              <Card key={index} className="p-4 lg:p-6 dark:bg-gray-800">
+              <Card key={index} className="p-4 lg:p-6 dark:bg-gray-800 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{stat.title}</p>
-                    <p className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                    <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                     <div className="flex items-center mt-2">
                       {stat.trend === "up" ? (
                         <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
                       ) : (
                         <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
                       )}
-                      <span className={`text-sm ${stat.trend === "up" ? "text-green-600" : "text-red-600"}`}>
+                      <span className={`text-sm font-medium ${stat.trend === "up" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
                         {stat.change}
                       </span>
                     </div>
@@ -135,16 +141,24 @@ const DashboardPage = () => {
             ))}
           </div>
 
+          {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-8">
             {/* Revenue Chart */}
-            <Card className="lg:col-span-2 p-4 lg:p-6 dark:bg-gray-800">
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">Revenue & Profit/Loss Trend</h3>
+            <Card className="lg:col-span-2 p-4 lg:p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Revenue & Profit/Loss Trend</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+                  <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-600" />
+                  <XAxis dataKey="name" className="dark:fill-gray-300" />
+                  <YAxis className="dark:fill-gray-300" />
+                  <Tooltip 
+                    formatter={(value) => formatCurrency(Number(value))} 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--background)', 
+                      border: '1px solid var(--border)',
+                      color: 'var(--foreground)'
+                    }}
+                  />
                   <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
                   <Bar dataKey="profit" fill="#3b82f6" name="Profit" />
                   <Bar dataKey="loss" fill="#ef4444" name="Loss" />
@@ -153,8 +167,8 @@ const DashboardPage = () => {
             </Card>
 
             {/* Category Distribution */}
-            <Card className="p-4 lg:p-6 dark:bg-gray-800">
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">Revenue by Category</h3>
+            <Card className="p-4 lg:p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Revenue by Category</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -168,7 +182,14 @@ const DashboardPage = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => `${value}%`} />
+                  <Tooltip 
+                    formatter={(value) => `${value}%`}
+                    contentStyle={{ 
+                      backgroundColor: 'var(--background)', 
+                      border: '1px solid var(--border)',
+                      color: 'var(--foreground)'
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-4 space-y-2">
@@ -179,9 +200,9 @@ const DashboardPage = () => {
                         className="w-3 h-3 rounded-full mr-2" 
                         style={{ backgroundColor: item.color }}
                       ></div>
-                      <span className="dark:text-gray-300">{item.name}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{item.name}</span>
                     </div>
-                    <span className="font-medium dark:text-white">{formatCurrency(item.amount)}</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(item.amount)}</span>
                   </div>
                 ))}
               </div>
@@ -190,21 +211,27 @@ const DashboardPage = () => {
 
           {/* Additional Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-            <Card className="p-4 lg:p-6 dark:bg-gray-800">
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">Orders Trend</h3>
+            <Card className="p-4 lg:p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Orders Trend</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={revenueData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" className="dark:stroke-gray-600" />
+                  <XAxis dataKey="name" className="dark:fill-gray-300" />
+                  <YAxis className="dark:fill-gray-300" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--background)', 
+                      border: '1px solid var(--border)',
+                      color: 'var(--foreground)'
+                    }}
+                  />
                   <Line type="monotone" dataKey="orders" stroke="#3b82f6" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
 
-            <Card className="p-4 lg:p-6 dark:bg-gray-800">
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">Top Selling Products</h3>
+            <Card className="p-4 lg:p-6 dark:bg-gray-800 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Top Selling Products</h3>
               <div className="space-y-4">
                 {[
                   { name: "Canon EOS R5", sold: 45, revenue: 675000000 },
@@ -214,10 +241,10 @@ const DashboardPage = () => {
                 ].map((product, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium dark:text-white">{product.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{product.sold} units sold</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{product.sold} units sold</p>
                     </div>
-                    <span className="font-semibold dark:text-white">{formatCurrency(product.revenue)}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(product.revenue)}</span>
                   </div>
                 ))}
               </div>
