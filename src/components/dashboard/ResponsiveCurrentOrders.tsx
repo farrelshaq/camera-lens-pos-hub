@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { OrderDetails } from "@/components/orders/OrderDetails";
+import { OrderDetailsModal } from "@/components/orders/OrderDetailsModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
@@ -150,7 +150,7 @@ export const ResponsiveCurrentOrders = () => {
         ))}
       </div>
 
-      <OrderDetails
+      <OrderDetailsModal
         order={selectedOrder}
         isOpen={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
