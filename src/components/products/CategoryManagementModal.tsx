@@ -1,13 +1,21 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus, Edit2, Trash2, Camera, Package, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LucideIcon } from "lucide-react";
 
 interface CategoryManagementModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdateCategories: (categories: any[]) => void;
+}
+
+interface CategoryType {
+  id: string;
+  name: string;
+  icon: LucideIcon;
 }
 
 const iconOptions = [
@@ -17,7 +25,7 @@ const iconOptions = [
 ];
 
 export const CategoryManagementModal = ({ isOpen, onClose, onUpdateCategories }: CategoryManagementModalProps) => {
-  const [categories, setCategories] = useState([
+  const [categories, setCategories] = useState<CategoryType[]>([
     { id: "camera", name: "Camera", icon: Camera },
     { id: "lens", name: "Lens", icon: Settings },
     { id: "accessories", name: "Accessories", icon: Package },
@@ -27,15 +35,15 @@ export const CategoryManagementModal = ({ isOpen, onClose, onUpdateCategories }:
     { id: "memory", name: "Memory Card", icon: Package },
   ]);
   
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState(Camera);
+  const [selectedIcon, setSelectedIcon] = useState<LucideIcon>(Camera);
   const { toast } = useToast();
 
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) return;
     
-    const newCategory = {
+    const newCategory: CategoryType = {
       id: newCategoryName.toLowerCase().replace(/\s+/g, '-'),
       name: newCategoryName,
       icon: selectedIcon

@@ -115,7 +115,7 @@ const HistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
-  const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [dateRange, setDateRange] = useState<any>({ from: null, to: null });
   const [exportedLink, setExportedLink] = useState("");
   const { toast } = useToast();
 
@@ -224,7 +224,7 @@ const HistoryPage = () => {
                     mode="range"
                     defaultMonth={dateRange?.from}
                     selected={dateRange}
-                    onSelect={setDateRange}
+                    onSelect={(range) => setDateRange(range || { from: null, to: null })}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -248,6 +248,9 @@ const HistoryPage = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Items
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Photo
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total
@@ -281,6 +284,13 @@ const HistoryPage = () => {
                           <li key={index}>{item}</li>
                         ))}
                       </ul>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <img 
+                        src="https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400" 
+                        alt="Product" 
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-800">

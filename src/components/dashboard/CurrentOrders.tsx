@@ -1,101 +1,186 @@
 
-import { Clock } from "lucide-react";
+import { useState } from "react";
+import { Clock, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const currentOrders = [
   {
     id: "ID1902",
     customer: "Michael Jordan",
     lastItem: "Canon EOS R5",
-    items: 12,
-    total: 290,
-    progress: 100,
+    items: [
+      { name: "Canon EOS R5", price: 67500000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400" },
+      { name: "Canon RF 24-70mm f/2.8L", price: 15000000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340119-67ad295b3a8d?w=400" }
+    ],
+    total: 82500000,
+    date: "2024-06-26",
     status: "completed"
   },
   {
     id: "ID8591",
     customer: "Sujiwo Bejo",
     lastItem: "Sony FX3 Cinema Camera",
-    items: 4,
-    total: 180,
-    progress: 79,
-    status: "cooking"
+    items: [
+      { name: "Sony FX3 Cinema Camera", price: 45000000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400" },
+      { name: "Sony FE 24-70mm f/2.8 GM", price: 22800000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340119-67ad295b3a8d?w=400" }
+    ],
+    total: 67800000,
+    date: "2024-06-26",
+    status: "processing"
   },
   {
     id: "ID7712",
     customer: "Dere Rizkani",
-    lastItem: "Canon RF 24-70mm",
-    items: 6,
-    total: 190,
-    progress: 60,
-    status: "cooking"
+    lastItem: "Nikon Z 7II",
+    items: [
+      { name: "Nikon Z 7II", price: 48200000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400" },
+      { name: "NIKKOR Z 24-70mm f/2.8 S", price: 25000000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340119-67ad295b3a8d?w=400" }
+    ],
+    total: 73200000,
+    date: "2024-06-26",
+    status: "processing"
   },
   {
     id: "ID8912",
     customer: "Filipus Seris",
-    lastItem: "Tripod Manfrotto",
-    items: 3,
-    total: 50,
-    progress: 40,
-    status: "preparing"
+    lastItem: "DJI Ronin-S",
+    items: [
+      { name: "DJI Ronin-S", price: 9900000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400" },
+      { name: "Zoom H6 Recorder", price: 2500000, quantity: 1, image: "https://images.unsplash.com/photo-1606983340119-67ad295b3a8d?w=400" }
+    ],
+    total: 12400000,
+    date: "2024-06-26",
+    status: "pending"
   }
 ];
 
-export const CurrentOrders = () => {
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div className="p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Current Order</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {currentOrders.map((order) => (
-            <div key={order.id} className="bg-gray-50 rounded-lg p-4 relative">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-500">{order.id}</span>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  order.status === 'completed' ? 'bg-emerald-500' : 'bg-emerald-100'
-                }`}>
-                  {order.status === 'completed' ? (
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
-                  ) : (
-                    <Clock size={16} className="text-emerald-600" />
-                  )}
-                </div>
-              </div>
-              
-              <h3 className="font-medium text-gray-800 mb-1">{order.customer}</h3>
-              <p className="text-sm text-gray-500 mb-3">{order.lastItem}</p>
-              
-              <div className="flex justify-between items-center text-sm mb-3">
-                <span className="text-gray-600">{order.items} Items</span>
-                <span className="font-semibold text-gray-800">${order.total}</span>
-              </div>
+const OrderDetailModal = ({ order, isOpen, onClose }) => {
+  if (!isOpen || !order) return null;
 
-              {/* Progress Ring */}
-              <div className="absolute top-4 right-4">
-                <div className="relative w-12 h-12">
-                  <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 36 36">
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#e5e7eb"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="2"
-                      strokeDasharray={`${order.progress}, 100`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-medium text-gray-700">{order.progress}%</span>
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black bg-opacity-50" />
+      <div className="bg-white rounded-xl p-6 shadow-xl z-10 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold">Order Details - {order.id}</h3>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X size={20} />
+          </Button>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Customer</p>
+              <p className="font-medium">{order.customer}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Date</p>
+              <p className="font-medium">{order.date}</p>
+            </div>
+          </div>
+          
+          <div>
+            <p className="text-sm text-gray-600 mb-2">Items Purchased</p>
+            <div className="space-y-3">
+              {order.items.map((item, index) => (
+                <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                  <img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    <p className="text-sm font-medium">{formatCurrency(item.price)}</p>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
+          
+          <div className="border-t pt-4">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-semibold">Total:</span>
+              <span className="text-lg font-bold text-emerald-600">{formatCurrency(order.total)}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  );
+};
+
+export const CurrentOrders = () => {
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCustomerClick = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
+
+  return (
+    <>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="p-4 lg:p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4 lg:mb-6">Current Order</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {currentOrders.map((order) => (
+              <div key={order.id} className="bg-gray-50 rounded-lg p-4 relative">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-gray-500">{order.id}</span>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    order.status === 'completed' ? 'bg-emerald-500' : 'bg-emerald-100'
+                  }`}>
+                    {order.status === 'completed' ? (
+                      <div className="w-4 h-4 bg-white rounded-full"></div>
+                    ) : (
+                      <Clock size={16} className="text-emerald-600" />
+                    )}
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => handleCustomerClick(order)}
+                  className="text-left w-full hover:bg-gray-100 rounded p-1 -m-1 transition-colors"
+                >
+                  <h3 className="font-medium text-gray-800 mb-1 hover:text-emerald-600">{order.customer}</h3>
+                </button>
+                <p className="text-sm text-gray-500 mb-3">{order.lastItem}</p>
+                
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">{order.items.length} Items</span>
+                  <span className="font-semibold text-gray-800">{formatCurrency(order.total)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <OrderDetailModal 
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   );
 };

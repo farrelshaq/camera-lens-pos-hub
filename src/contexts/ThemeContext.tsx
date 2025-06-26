@@ -30,8 +30,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (theme === 'dark') {
       root.classList.add('dark');
+      document.body.style.backgroundColor = '#0f0f0f';
+      document.body.style.color = '#ffffff';
     } else {
       root.classList.remove('dark');
+      document.body.style.backgroundColor = '#ffffff';
+      document.body.style.color = '#000000';
     }
   }, [theme]);
 
@@ -41,7 +45,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <div className={theme === 'dark' ? 'dark' : ''}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 };
