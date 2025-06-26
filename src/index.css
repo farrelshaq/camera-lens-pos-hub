@@ -82,6 +82,68 @@
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6;
   }
   
+  /* Mobile-first responsive breakpoints */
+  .mobile-grid {
+    @apply grid grid-cols-1 gap-4;
+  }
+  
+  .tablet-grid {
+    @apply sm:grid-cols-2 sm:gap-6;
+  }
+  
+  .desktop-grid {
+    @apply lg:grid-cols-3 lg:gap-8;
+  }
+  
+  /* Typography responsive classes */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  /* Spacing responsive classes */
+  .p-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .m-responsive {
+    @apply m-4 sm:m-6 lg:m-8;
+  }
+  
+  /* Button responsive classes */
+  .btn-responsive {
+    @apply px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base;
+  }
+  
+  /* Card responsive classes */
+  .card-responsive {
+    @apply p-4 sm:p-6 lg:p-8 rounded-lg sm:rounded-xl;
+  }
+  
+  /* Flexible layout utilities */
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row;
+  }
+  
+  .gap-responsive {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+  
   /* Dark mode specific styles */
   .dark .bg-white {
     @apply bg-gray-800;
@@ -112,6 +174,53 @@
     .sidebar-mobile.open {
       @apply translate-x-0;
     }
+    
+    /* Mobile-specific table styles */
+    .table-mobile {
+      @apply block overflow-x-auto whitespace-nowrap;
+    }
+    
+    .table-mobile thead {
+      @apply sr-only;
+    }
+    
+    .table-mobile tr {
+      @apply block border border-gray-200 dark:border-gray-700 rounded-lg mb-4 p-4;
+    }
+    
+    .table-mobile td {
+      @apply block text-right border-none;
+    }
+    
+    .table-mobile td:before {
+      content: attr(data-label) ": ";
+      @apply float-left font-medium text-gray-600 dark:text-gray-400;
+    }
+  }
+  
+  /* Touch-friendly interactive elements */
+  @media (max-width: 768px) {
+    .touch-target {
+      @apply min-h-[44px] min-w-[44px];
+    }
+    
+    button, a, input, select, textarea {
+      @apply touch-target;
+    }
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .high-contrast {
+      @apply border-2 border-current;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      @apply transition-none animate-none;
+    }
   }
 }
 
@@ -130,4 +239,31 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-emerald-500;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* Safe area insets for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
 }
